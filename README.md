@@ -7,7 +7,7 @@ Python-Bibliothek zur Materialcharakterisierung basierend auf experimentellen Da
 Libreria Python per la caratterizzazione dei materiali sulla base di dati sperimentali per la costruzione leggera
 
 ## How to use 
-Step 1: find cut off displacement to clean F-u curve (print force-displacement curve)
+Step 1: find cut off displacement of F-u curve, if needed (print force-displacement curve to show data graphically)
 
 Step 2: activate cuting and smoothing and verify smoothed F-u curve is correct (print force-displacement curve with raw and smoothed data)
 
