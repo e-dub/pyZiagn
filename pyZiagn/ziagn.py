@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib2tikz import save as tikz_save
 import pandas as pd
 
+
 class uniaxialTensileTest(object):
     def __init__(self, TestMachine="unibz MTS E0.10", Title="",
                  length0=10, Area0=10):
@@ -46,7 +47,7 @@ class uniaxialTensileTest(object):
     def calcElasticModulus(self, strain0=0, strain1=0.1):
         self.ElasticModulus = np.zeros((self.nSamples-1,))
         for i in range(self.nSamples-1):
-            self.ElasticModulus[i] = ((self.stressEng[i+1]-self.stressEng[i])/
+            self.ElasticModulus[i] = ((self.stressEng[i+1]-self.stressEng[i]) /
                                       (self.strainEng[i+1]-self.strainEng[i]))
         stressEngElastic = self.stressEng[self.strainEng > strain0]
         strainEngElastic = self.strainEng[self.strainEng > strain0]
@@ -59,7 +60,7 @@ class uniaxialTensileTest(object):
 
     def calcStressUltimate(self):
         self.stressUltimate = max(self.stressEng)
-        self.strainUltimate = self.strainEng[np.where(self.stressEng==
+        self.strainUltimate = self.strainEng[np.where(self.stressEng ==
                                                       self.stressUltimate)]
 
     def calcArea(self):
@@ -252,32 +253,6 @@ class uniaxialTensileTest(object):
         if Show:
             plt.show()
 
-#    def plotMulti(self, x, y, names, xLabel, yLabel, Grid=True):
-#        fig, ax = plt.subplots()
-#        plt.grid(Grid)
-#        ax.spines['right'].set_visible(False)
-#        ax.spines['top'].set_visible(False)
-#        ax.yaxis.set_ticks_position('left')
-#        ax.xaxis.set_ticks_position('bottom')
-#        for i in range(len(x)):
-#            plt(x[i], y[i], legend=names[i])
-#        plt.xlabel(xLabel)
-#        plt.ylabel(yLabel)
-#        plt.legend(frameon=False)
-#        plt.title(self.Title)
-#        plt.xlim(xmin=0)
-#        plt.ylim(ymin=0)
-#        if Show:
-#            plt.show()
-#        if SaveTex:
-#            tikz_save(self.Title+'_StressStrainEng02.tex', show_info=False, strict=False,
-#                      figureheight='\\figureheight', figurewidth='\\figurewidth',
-#                      extra_axis_parameters={"axis lines*=left"})
-#        if SavePng:
-#            plt.savefig(self.Title+"StressStrainEng02.png", format="png")
-#        if SaveSvg:
-#            plt.savefig(self.Title+"StressStrainEng02.svg", format="svg")
-
     def plotStressStrainEng02(self, yMax=50, xMax=0.075, Show=True,
                               SaveTex=True, SavePng=True, SaveSvg=True):
         strain1 = np.linspace(0.0, max(self.strainEng), self.nSamples)
@@ -334,11 +309,11 @@ def export2Excel(TestList, FileName="TestSummary.xlsx", PrintData=True):
                 "Breaking stress": [i.stressEng[-1] for i in TestList],
                 "Breaking strain": [i.strainEng[-1] for i in TestList]}
     TestDataFrame = pd.DataFrame(TestData, columns=["Test", "Young's modulus",
-                                                 "Initial stress of test",
-                                                 "Stress at linear limit",
-                                                 "Rp0.2", "Ultimate stress",
-                                                 "Breaking stress",
-                                                 "Breaking strain"])
+                                                    "Initial stress of test",
+                                                    "Stress at linear limit",
+                                                    "Rp0.2", "Ultimate stress",
+                                                    "Breaking stress",
+                                                    "Breaking strain"])
     TestDataFrame.to_excel(FileName, index=None, header=True)
     if PrintData:
         print(TestDataFrame)
@@ -375,7 +350,6 @@ def plotMulti(TestList, Show=True, SaveTex=True, SavePng=True, SaveSvg=True,
         plt.savefig(PlotName+".png", format="png")
     if SaveSvg:
         plt.savefig(PlotName+".svg", format="svg")
-
 
 
 if __name__ == "__main__":
