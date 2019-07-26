@@ -1,6 +1,6 @@
 # pyZiagn
 
-Python library for material characteriZation based on experImental dAta for lightweiGht desigN
+Python librarY for material characteriZation based on experImental dAta for lightweiGht desigN
 
 Python-Bibliothek zur Materialcharakterisierung basierend auf experimentellen Daten für den Leichtbau
 
