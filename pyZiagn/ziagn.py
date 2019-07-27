@@ -8,7 +8,7 @@ class uniaxialTensileTest(object):
     def __init__(self, TestMachine="unibz MTS E0.10", Title="",
                  length0=10, Area0=10):
         self.Area0 = Area0
-        self.TestMachine = []
+        self.TestMachine = TestMachine
         self.Title = Title
         self.Area0 = Area0
         self.length0 = length0
@@ -21,16 +21,30 @@ class uniaxialTensileTest(object):
         self.disp = np.linspace(0, 1, self.nSamples)
         self.ForceUnit = "N"
         self.dispUnit = "mm"
-        self.Titel = "Simple test case"
+        self.Title = "Test 1"
+        self.TestMachine = "None"
 
     def changeUnits(self, UnitSystem="MPa"):
         if UnitSystem == "MPa":
             if self.dispUnit == "m":
                 self.disp *= 1000
                 self.dispUnit = "mm"
+            if self.dispUnit == "cm":
+                self.disp *= 10
+                self.dispUnit = "mm"
             if self.ForceUnit == "kN":
                 self.Force *= 1000
-                self.dispUnit = "mm"
+                self.ForceUnit = "N"
+        if UnitSystem == "SI":
+            if self.dispUnit == "mm":
+                self.disp /= 1000
+                self.dispUnit = "m"
+            if self.dispUnit == "cm":
+                self.disp /= 10
+                self.dispUnit = "m"
+            if self.ForceUnit == "kN":
+                self.Force *= 1000
+                self.ForceUnit = "N"
 
     def calcStressEng(self):
         self.stressEng = self.Force/self.Area0
@@ -111,9 +125,9 @@ class uniaxialTensileTest(object):
         self.strainEng += self.strain0
 
     def plotForceDisp(self, Show=True, SaveTex=True, SavePng=True,
-                      SaveSvg=True):
+                      SaveSvg=True, Grid=False):
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
-        plt.grid(True)
+        plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
@@ -138,9 +152,9 @@ class uniaxialTensileTest(object):
             plt.show()
 
     def plotStressStrainEng(self, Show=True, SaveTex=True, SavePng=True,
-                            SaveSvg=True):
+                            SaveSvg=True, Grid=False):
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
-        plt.grid(True)
+        plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
@@ -165,9 +179,9 @@ class uniaxialTensileTest(object):
             plt.show()
 
     def plotStressStrainTrue(self, Show=True, SaveTex=True, SavePng=True,
-                             SaveSvg=True):
+                             SaveSvg=True, Grid=False):
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
-        plt.grid(True)
+        plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
@@ -192,9 +206,9 @@ class uniaxialTensileTest(object):
             plt.show()
 
     def plotStressStrainEngTrue(self, Show=True, SaveTex=True, SavePng=True,
-                                SaveSvg=True):
+                                SaveSvg=True, Grid=False):
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
-        plt.grid(True)
+        plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
@@ -223,9 +237,9 @@ class uniaxialTensileTest(object):
             plt.show()
 
     def plotForceDispSmoothRaw(self, Show=True, SaveTex=True, SavePng=True,
-                               SaveSvg=True):
+                               SaveSvg=True, Grid=False):
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
-        plt.grid(True)
+        plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
@@ -254,7 +268,8 @@ class uniaxialTensileTest(object):
             plt.show()
 
     def plotStressStrainEng02(self, yMax=50, xMax=0.075, Show=True,
-                              SaveTex=True, SavePng=True, SaveSvg=True):
+                              SaveTex=True, SavePng=True, SaveSvg=True,
+                              Grid=False):
         strain1 = np.linspace(0.0, max(self.strainEng), self.nSamples)
         strain2 = np.linspace(0.002, max(self.strainEng), self.nSamples)
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
@@ -283,7 +298,7 @@ class uniaxialTensileTest(object):
         plt.xlim(xmin=0, xmax=xMax)
         #plt.ylim(ymin=0, ymax=max(self.stressEng)*1.05)
         plt.ylim(ymin=0, ymax=yMax)
-        plt.grid(True)
+        plt.grid(Grid)
         plt.legend(frameon=False, loc='center left', bbox_to_anchor=(1, 0.5))
         plt.tight_layout()
         if SaveTex:
@@ -320,8 +335,10 @@ def export2Excel(TestList, FileName="TestSummary.xlsx", PrintData=True):
 
 
 def plotMulti(TestList, Show=True, SaveTex=True, SavePng=True, SaveSvg=True,
-              PlotName="Comparison"):
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 10))
+              PlotName="Comparison", Grid=False, strainMin=0.0, strainMax=0.75,
+              stressMin=0.0, stressMax=55, plotSize=(10, 10)):
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
+    plt.grid(Grid)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
@@ -334,14 +351,10 @@ def plotMulti(TestList, Show=True, SaveTex=True, SavePng=True, SaveSvg=True,
                  label=TestList[i].Title)
     plt.ylabel('Engineering stress $\\sigma_{\\mathrm{Eng}}$ [MPa]')
     plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{Eng}}$ [-]')
-    plt.xlim(xmin=0, xmax=0.075)
-    #plt.ylim(ymin=0, ymax=max(self.stressEng)*1.05)
-    plt.ylim(ymin=0, ymax=55)
+    plt.xlim(xmin=strainMin, xmax=strainMax)
+    plt.ylim(ymin=stressMin, ymax=stressMax)
     plt.legend(frameon=False, loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.grid(True)
     plt.tight_layout()
-    if Show:
-        plt.show()
     if SaveTex:
         tikz_save(PlotName+'_.tex', show_info=False, strict=False,
                   figureheight='\\figureheight', figurewidth='\\figurewidth',
@@ -350,6 +363,8 @@ def plotMulti(TestList, Show=True, SaveTex=True, SavePng=True, SaveSvg=True,
         plt.savefig(PlotName+".png", format="png")
     if SaveSvg:
         plt.savefig(PlotName+".svg", format="svg")
+    if Show:
+        plt.show()
 
 
 if __name__ == "__main__":
