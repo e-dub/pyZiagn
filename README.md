@@ -25,3 +25,6 @@ python setup.py install
 * Step 1: find cut off displacement of F-u curve, if needed (print force-displacement curve to show data graphically)
 * Step 2: activate cuting and smoothing and verify smoothed F-u curve is correct (print force-displacement curve with raw and smoothed data)
 * Step 3: find proper region for strain0 and strain1 to calculate Young's modulus (and therefore the yield limit)
+
+## Getting started
+See iPython notebook under tests. 
