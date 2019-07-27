@@ -40,6 +40,6 @@ for i in range(len(TestList)):
     Test[i].calcRp02()
     Test[i].calcLinearLimit()
     Test[i].zeroStrain()
-    Test[i].plotStressStrainEng02()
+    Test[i].plotStressStrainEngAll()
 pyZiagn.export2Excel(Test)
-pyZiagn.plotMulti(Test)
+pyZiagn.plotMulti(Test, strainMax=0.08)

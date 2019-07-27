@@ -12,9 +12,14 @@ if __name__ == '__main__':
     from distutils.core import setup
     extra_files = package_files('pyZiagn')
     setup(name='pyZiagn',
-          version='1.0',
+          version='0.1',
           description='Python librarY for material characteriZation based on experImental dAta for lightweiGht desigN',
           author='E. J. Wehrle',
+          url='https://github.com/e-dub/pyZiagn',
           package_data={'': extra_files},
-          license='GNU Lesser General Public License',
-          packages=['pyZiagn'])
+          license='gpl-3.0',
+          packages=['pyZiagn'],
+          install_requires=['numpy',
+                            'matplotlib',
+                            'matplotlib2tikz',
+                            'pandas'])
