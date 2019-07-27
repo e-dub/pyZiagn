@@ -107,6 +107,11 @@ class uniaxialTensileTest(object):
             self.Force = self.Force[self.dispAll < value]
             self.nSamples = len(self.disp)
 
+    def resetCutData(self):
+        self.disp = self.dispAll.copy()
+        self.Force = self.ForceAll.copy()
+        self.nSamples = len(self.disp)
+
     def importTestData(self, FileName, FileFormat="MTScsv", ForceUnit="N",
                        dispUnit="mm", decimalSeparator=","):
         self.FileFormat = FileFormat
