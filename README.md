@@ -8,7 +8,7 @@
 
 ## Installation
 ### Prerequisites
-Python 3 and you can install the need libraries via PIP:
+Python 3 and you can install the necessary libraries via PIP:
 ```pip install scipy
 pip install numpy
 pip install matplotlib
