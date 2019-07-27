@@ -12,6 +12,7 @@ class uniaxialTensileTest(object):
         self.Title = Title
         self.Area0 = Area0
         self.length0 = length0
+        self.strain0 = 0
 
     def loadExample(self):
         self.Area0 = 10
@@ -75,18 +76,18 @@ class uniaxialTensileTest(object):
     def calcStressUltimate(self):
         self.stressUltimate = max(self.stressEng)
         self.strainUltimate = self.strainEng[np.where(self.stressEng ==
-                                                      self.stressUltimate)]
+                                                      self.stressUltimate)]-self.strain0
 
     def calcArea(self):
         self.Area = self.Area0/(1 + self.strainEng)
 
     def calcRp02(self):
-        self.stressRP02 = self.stressEng[np.argwhere(np.diff(np.sign(self.ElasticTrend(self.strainEng-0.002) - self.stressEng)) != 0)][0][0]
-        self.strainRP02 = self.strainEng[np.argwhere(np.diff(np.sign(self.ElasticTrend(self.strainEng-0.002) - self.stressEng)) != 0)][0][0]
+        self.stressRP02 = self.stressEng[np.argwhere(np.diff(np.sign(self.ElasticTrend(self.strainEng-self.strain0+-0.002) - self.stressEng)) != 0)][0][0]
+        self.strainRP02 = self.strainEng[np.argwhere(np.diff(np.sign(self.ElasticTrend(self.strainEng-self.strain0-0.002) - self.stressEng)) != 0)][0][0]-self.strain0
 
     def calcLinearLimit(self, eps=0.025, strainRangeMax=0.02):
-        self.stressLinLimit = self.stressEng[abs((self.ElasticTrend(self.strainEng) - self.stressEng)/self.stressEng < eps)][-1]
-        self.strainLinLimit = self.strainEng[abs((self.ElasticTrend(self.strainEng) - self.stressEng)/self.stressEng < eps)][-1]
+        self.stressLinLimit = self.stressEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]
+        self.strainLinLimit = self.strainEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]-self.strain0
         if self.stressLinLimit > self.stressRP02:
             strainRangeCut = self.strainEng[self.strainEng < strainRangeMax]
             stressRangeCut = self.stressEng[self.strainEng < strainRangeMax]
@@ -125,13 +126,14 @@ class uniaxialTensileTest(object):
         self.nSamples = len(self.disp)
 
     def zeroStrain(self):
-        stress0 = self.stressEng[0]
+        stress0 = self.stressEng[0].copy()
         self.strain0 = stress0/self.YoungsModulus
         self.strainEng += self.strain0
+        self.strainTrue += self.strain0
 
     def plotForceDisp(self, Show=True, SaveTex=True, SavePng=True,
-                      SaveSvg=True, Grid=False):
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
+                      SaveSvg=True, Grid=False, plotSize=(7, 5)):
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
         plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
@@ -157,8 +159,8 @@ class uniaxialTensileTest(object):
             plt.show()
 
     def plotStressStrainEng(self, Show=True, SaveTex=True, SavePng=True,
-                            SaveSvg=True, Grid=False):
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
+                            SaveSvg=True, Grid=False, plotSize=(7, 5)):
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
         plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
@@ -184,8 +186,8 @@ class uniaxialTensileTest(object):
             plt.show()
 
     def plotStressStrainTrue(self, Show=True, SaveTex=True, SavePng=True,
-                             SaveSvg=True, Grid=False):
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
+                             SaveSvg=True, Grid=False, plotSize=(7, 5)):
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
         plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
@@ -211,8 +213,8 @@ class uniaxialTensileTest(object):
             plt.show()
 
     def plotStressStrainEngTrue(self, Show=True, SaveTex=True, SavePng=True,
-                                SaveSvg=True, Grid=False):
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
+                                SaveSvg=True, Grid=False, plotSize=(7, 5)):
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
         plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
@@ -242,8 +244,8 @@ class uniaxialTensileTest(object):
             plt.show()
 
     def plotForceDispSmoothRaw(self, Show=True, SaveTex=True, SavePng=True,
-                               SaveSvg=True, Grid=False):
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
+                               SaveSvg=True, Grid=False, plotSize=(7, 5)):
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
         plt.grid(Grid)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
@@ -272,12 +274,92 @@ class uniaxialTensileTest(object):
         if Show:
             plt.show()
 
-    def plotStressStrainEng02(self, yMax=50, xMax=0.075, Show=True,
-                              SaveTex=True, SavePng=True, SaveSvg=True,
-                              Grid=False):
+    def plotStressStrainEngYoungs(self, stressMin=0, strainMin=0, stressMax=50,
+                                  strainMax=0.075, Show=True, SaveTex=True,
+                                  SavePng=True, SaveSvg=True, Grid=False,
+                                  plotSize=(7, 5)):
         strain1 = np.linspace(0.0, max(self.strainEng), self.nSamples)
         strain2 = np.linspace(0.002, max(self.strainEng), self.nSamples)
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+        plt.plot(self.strainEng, self.stressEng, label="Material behavior")
+        #plt.plot(self.strainEng+0.002+self.strain0, self.ElasticTrend(self.strainEng), label="0.2% offset")
+        plt.plot(strain1, self.ElasticTrend(strain1-self.strain0), '--',
+                 label="Young's modulus")
+        plt.ylabel('Engineering stress $\\sigma_{\\mathrm{Eng}}$ [MPa]')
+        plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{Eng}}$ [-]')
+        plt.title(self.Title)
+        plt.xlim(xmin=strainMin, xmax=strainMax)
+        #plt.ylim(ymin=0, ymax=max(self.stressEng)*1.05)
+        plt.ylim(ymin=stressMin, ymax=stressMax)
+        plt.grid(Grid)
+        plt.legend(frameon=False, loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.tight_layout()
+        if SaveTex:
+            tikz_save(self.Title+'_StressStrainEng02.tex', show_info=False,
+                      strict=False, figureheight='\\figureheight',
+                      figurewidth='\\figurewidth',
+                      extra_axis_parameters={"axis lines*=left"})
+        if SavePng:
+            plt.savefig(self.Title+"_StressStrainEng02.png", format="png")
+        if SaveSvg:
+            plt.savefig(self.Title+"_StressStrainEng02.svg", format="svg")
+        if Show:
+            plt.show()
+
+
+    def plotStressStrainEngRP02(self, stressMin=0, strainMin=0, stressMax=50,
+                                strainMax=0.075, Show=True, SaveTex=True,
+                                SavePng=True, SaveSvg=True, Grid=False,
+                                plotSize=(7, 5)):
+        strain1 = np.linspace(0.0, max(self.strainEng), self.nSamples)
+        strain2 = np.linspace(0.002, max(self.strainEng), self.nSamples)
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.yaxis.set_ticks_position('left')
+        ax.xaxis.set_ticks_position('bottom')
+        plt.plot(self.strainEng, self.stressEng, label="Material behavior")
+        #plt.plot(self.strainEng+0.002+self.strain0, self.ElasticTrend(self.strainEng), label="0.2% offset")
+        plt.plot(strain1, self.ElasticTrend(strain1-self.strain0), '--',
+                 label="Young's modulus")
+        plt.plot(strain2, self.ElasticTrend(strain2-0.002-self.strain0), '--',
+                 label="0.2% offset")
+        plt.plot(self.strainRP02+self.strain0, self.stressRP02, "o",
+                 label="$R_{P0.2}$")
+        plt.plot(self.strainLinLimit+self.strain0, self.stressLinLimit, "o",
+                 label="Linear limit")
+        plt.ylabel('Engineering stress $\\sigma_{\\mathrm{Eng}}$ [MPa]')
+        plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{Eng}}$ [-]')
+        plt.title(self.Title)
+        plt.xlim(xmin=strainMin, xmax=strainMax)
+        #plt.ylim(ymin=0, ymax=max(self.stressEng)*1.05)
+        plt.ylim(ymin=stressMin, ymax=stressMax)
+        plt.grid(Grid)
+        plt.legend(frameon=False, loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.tight_layout()
+        if SaveTex:
+            tikz_save(self.Title+'_StressStrainEng02.tex', show_info=False,
+                      strict=False, figureheight='\\figureheight',
+                      figurewidth='\\figurewidth',
+                      extra_axis_parameters={"axis lines*=left"})
+        if SavePng:
+            plt.savefig(self.Title+"_StressStrainEng02.png", format="png")
+        if SaveSvg:
+            plt.savefig(self.Title+"_StressStrainEng02.svg", format="svg")
+        if Show:
+            plt.show()
+
+
+    def plotStressStrainEngAll(self, yMax=50, xMax=0.075, Show=True,
+                              SaveTex=True, SavePng=True, SaveSvg=True,
+                              Grid=False, plotSize=(7, 5)):
+        strain1 = np.linspace(0.0, max(self.strainEng), self.nSamples)
+        strain2 = np.linspace(0.002, max(self.strainEng), self.nSamples)
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
