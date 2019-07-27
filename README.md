@@ -1,3 +1,5 @@
+<p align=center><img height="50%" width="50%" src="figures/pyZiagn.png"></p>
+
 # pyZiagn
 
 **Python librarY for material characteriZation based on experImental dAta for lightweiGht desigN**
