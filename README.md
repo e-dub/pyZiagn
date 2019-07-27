@@ -23,6 +23,12 @@ pip install pandas
 python setup.py install
 ```
 
+### PIP
+You can also install pyZiagn via pip
+```
+pip install pyZiagn
+```
+
 ## How to use 
 * Step 1: find cut off displacement of F-u curve, if needed (print force-displacement curve to show data graphically)
 * Step 2: activate cuting and smoothing and verify smoothed F-u curve is correct (print force-displacement curve with raw and smoothed data)
