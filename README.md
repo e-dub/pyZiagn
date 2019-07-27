@@ -24,7 +24,7 @@ python setup.py install
 ```
 
 ### PIP
-You can also install pyZiagn via pip
+You can also install pyZiagn via PIP
 ```
 pip install pyZiagn
 ```
