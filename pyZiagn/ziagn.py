@@ -13,6 +13,10 @@ class uniaxialTensileTest(object):
         self.Area0 = Area0
         self.length0 = length0
         self.strain0 = 0
+        self.strainLinLim = []
+        self.strainTrueLinLim = []
+        self.strainRP02 = []
+        self.strainUltimate = []
 
     def loadExample(self):
         self.Area0 = 10
@@ -60,6 +64,8 @@ class uniaxialTensileTest(object):
         self.strainTrue = np.log(1+self.strainEng)
 
     def calcElasticModulus(self, strain0=0, strain1=0.1):
+        self.ElasticModulusStrain0 = strain0
+        self.ElasticModulusStrain1 = strain1
         self.ElasticModulus = np.zeros((self.nSamples-1,))
         for i in range(self.nSamples-1):
             self.ElasticModulus[i] = ((self.stressEng[i+1]-self.stressEng[i]) /
@@ -76,23 +82,38 @@ class uniaxialTensileTest(object):
     def calcStressUltimate(self):
         self.stressUltimate = max(self.stressEng)
         self.strainUltimate = self.strainEng[np.where(self.stressEng ==
-                                                      self.stressUltimate)]-self.strain0
+                                                      self.stressUltimate)]
 
     def calcArea(self):
-        self.Area = self.Area0/(1 + self.strainEng)
+        #self.Area = self.Area0/(1+self.strainEng)
+        self.Area = self.Area0*self.length0/self.length
 
-    def calcRp02(self):
-        self.stressRP02 = self.stressEng[np.argwhere(np.diff(np.sign(self.ElasticTrend(self.strainEng-self.strain0+-0.002) - self.stressEng)) != 0)][0][0]
-        self.strainRP02 = self.strainEng[np.argwhere(np.diff(np.sign(self.ElasticTrend(self.strainEng-self.strain0-0.002) - self.stressEng)) != 0)][0][0]-self.strain0
+    def calcLength(self):
+        self.length = self.length0+self.disp
+
+    def calcRP02(self):
+        stressRP02 = self.stressEng[np.argwhere(np.diff(np.sign(self.ElasticTrend(self.strainEng-0.002) - self.stressEng)) != 0)]
+        strainRP02 = self.strainEng[np.argwhere(np.diff(np.sign(self.ElasticTrend(self.strainEng-0.002) - self.stressEng)) != 0)]
+        if len(stressRP02) > 0:
+            self.stressRP02 = stressRP02[0][0]
+            self.strainRP02 = strainRP02[0][0]
+        else:
+            self.stressRP02 = max(self.stressEng)
+            self.strainRP02 = max(self.strainEng)
+
 
     def calcLinearLimit(self, eps=0.025, strainRangeMax=0.02):
-        self.stressLinLimit = self.stressEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]
-        self.strainLinLimit = self.strainEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]-self.strain0
+        #self.stressLinLimit = self.stressEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]
+        #self.strainLinLimit = self.strainEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]-self.strain0
+        self.stressLinLimit = self.stressEng[abs((self.ElasticTrend(self.strainEng) - self.stressEng)/self.stressEng < eps)][-1]
+        self.strainLinLimit = self.strainEng[abs((self.ElasticTrend(self.strainEng) - self.stressEng)/self.stressEng < eps)][-1]
         if self.stressLinLimit > self.stressRP02:
             strainRangeCut = self.strainEng[self.strainEng < strainRangeMax]
             stressRangeCut = self.stressEng[self.strainEng < strainRangeMax]
             self.stressLinLimit = stressRangeCut[abs((self.ElasticTrend(strainRangeCut[strainRangeCut < 0.04]) - stressRangeCut)/stressRangeCut < eps)][-1]
             self.strainLinLimit = strainRangeCut[abs((self.ElasticTrend(strainRangeCut[strainRangeCut < 0.04]) - stressRangeCut)/stressRangeCut < eps)][-1]
+        self.stressTrueLinLimit = self.stressLinLimit*(1+self.strainLinLimit)
+        self.strainTrueLinLimit = np.log(1+self.strainLinLimit)
 
     def smoothForce(self):
         from scipy.signal import savgol_filter
@@ -130,6 +151,63 @@ class uniaxialTensileTest(object):
         self.strain0 = stress0/self.YoungsModulus
         self.strainEng += self.strain0
         self.strainTrue += self.strain0
+        #if self.strainRP02: self.strainRP02 += self.strain0
+        if hasattr(self, 'strainRP02'): self.strainRP02 += self.strain0
+        #if self.strainLinLimit: self.strainLinLimit += self.strain0
+        if hasattr(self, 'strainLinLimit'): self.strainLinLimit += self.strain0
+        #if self.strainTrueLinLimit: self.strainTrueLinLimit += self.strain0
+        if hasattr(self, 'strainTrueLinLimit'): self.strainTrueLinLimit += self.strain0
+        #if self.strainUltimate: self.strainUltimate += self.strain0
+        if hasattr(self, 'strainUltimate'): self.strainUltimate += self.strain0
+        if hasattr(self, 'YoungsModulus'):
+            self.calcElasticModulus(self.ElasticModulusStrain0+self.strain0,
+                                    self.ElasticModulusStrain1+self.strain0)
+
+    def calcResilienceModulus(self):
+        self.ResilienceModulus = self.stressLinLimit*self.strainLinLimit/2.0
+
+    def calcToughnessModulus(self):
+        self.ToughnessModulus = np.trapz(self.stressEng, x=self.strainEng)
+
+    def approxRambergOsgood(self):
+        from scipy.optimize import curve_fit
+        self.stressRambergOsgood = np.linspace(0, self.stressUltimate, 10000)
+        self.alphaRambergOsgood = 0.002*self.YoungsModulus/self.stressRP02
+
+        def fRambergOsgood(stress, nRambergOsgood):
+            return(stress/self.YoungsModulus +
+                   self.alphaRambergOsgood*self.stressRP02/self.YoungsModulus*(stress/self.stressRP02)**nRambergOsgood)
+        stressEngCut = self.stressEng[self.stressEng<self.stressUltimate]
+        strainEngCut = self.strainEng[self.stressEng<self.stressUltimate]
+        self.nRambergOsgood, pcov = curve_fit(fRambergOsgood, stressEngCut,
+                                              strainEngCut, p0=5)
+        self.strainRambergOsgood = (self.stressRambergOsgood/self.YoungsModulus +
+                                    self.alphaRambergOsgood*self.stressRP02/self.YoungsModulus*(self.stressRambergOsgood/self.stressRP02)**self.nRambergOsgood)
+
+    def approxHockettSherby(self):
+        from scipy.optimize import curve_fit
+        #self.strainHockettSherby = strain
+        self.stressPlastic = max(self.stressTrue)-self.stressTrueLinLimit
+        def fHockettSherby(strain, cHockettSherby, nHockettSherby):
+            return(self.stressTrueLinLimit + self.stressPlastic -self.stressPlastic*np.exp(-cHockettSherby*strain**nHockettSherby))
+        stressPlastic = self.stressTrue[self.strainTrue>self.strainTrueLinLimit]
+        strainPlastic = self.strainTrue[self.strainTrue>self.strainTrueLinLimit]-self.strainTrueLinLimit
+        [self.cHockettSherby, self.nHockettSherby], pcov = curve_fit(fHockettSherby, strainPlastic, stressPlastic, maxfev=1000000) #, p0=[10, 0.75])
+        self.strainHockettSherby = strainPlastic
+        self.stressHockettSherby = (self.stressTrueLinLimit + self.stressPlastic -
+                                   self.stressPlastic*np.exp(-self.cHockettSherby*self.strainHockettSherby**self.nHockettSherby))
+
+    def approxGhosh(self):
+        from scipy.optimize import curve_fit
+        #self.strainHockettSherby = strain
+        self.stressPlastic = max(self.stressTrue)-self.stressTrueLinLimit
+        def fGhosh(strain, aGhosh, bGhosh, cGhosh, nGhosh):
+             return(aGhosh*(bGhosh+strain)**nGhosh-cGhosh)
+        stressPlastic = self.stressTrue[self.strainTrue>self.strainTrueLinLimit]
+        strainPlastic = self.strainTrue[self.strainTrue>self.strainTrueLinLimit]-self.strainTrueLinLimit
+        [self.aGhosh, self.bGhosh, self.cGhosh, self.nGhosh], pcov = curve_fit(fGhosh, strainPlastic, stressPlastic, maxfev=1000000) #, p0=[10, 0.75])
+        self.strainGhosh = strainPlastic
+        self.stressGhosh = self.aGhosh*(self.bGhosh+self.strainGhosh)**self.nGhosh-self.cGhosh
 
     def plotForceDisp(self, Show=True, SaveTex=True, SavePng=True,
                       SaveSvg=True, Grid=False, plotSize=(7, 5)):
@@ -287,7 +365,7 @@ class uniaxialTensileTest(object):
         ax.xaxis.set_ticks_position('bottom')
         plt.plot(self.strainEng, self.stressEng, label="Material behavior")
         #plt.plot(self.strainEng+0.002+self.strain0, self.ElasticTrend(self.strainEng), label="0.2% offset")
-        plt.plot(strain1, self.ElasticTrend(strain1-self.strain0), '--',
+        plt.plot(strain1, self.ElasticTrend(strain1), '--',
                  label="Young's modulus")
         plt.ylabel('Engineering stress $\\sigma_{\\mathrm{Eng}}$ [MPa]')
         plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{Eng}}$ [-]')
@@ -324,13 +402,13 @@ class uniaxialTensileTest(object):
         ax.xaxis.set_ticks_position('bottom')
         plt.plot(self.strainEng, self.stressEng, label="Material behavior")
         #plt.plot(self.strainEng+0.002+self.strain0, self.ElasticTrend(self.strainEng), label="0.2% offset")
-        plt.plot(strain1, self.ElasticTrend(strain1-self.strain0), '--',
+        plt.plot(strain1, self.ElasticTrend(strain1), '--',
                  label="Young's modulus")
-        plt.plot(strain2, self.ElasticTrend(strain2-0.002-self.strain0), '--',
+        plt.plot(strain2, self.ElasticTrend(strain2-0.002), '--',
                  label="0.2% offset")
-        plt.plot(self.strainRP02+self.strain0, self.stressRP02, "o",
+        plt.plot(self.strainRP02, self.stressRP02, "o",
                  label="$R_{P0.2}$")
-        plt.plot(self.strainLinLimit+self.strain0, self.stressLinLimit, "o",
+        plt.plot(self.strainLinLimit, self.stressLinLimit, "o",
                  label="Linear limit")
         plt.ylabel('Engineering stress $\\sigma_{\\mathrm{Eng}}$ [MPa]')
         plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{Eng}}$ [-]')
@@ -366,17 +444,17 @@ class uniaxialTensileTest(object):
         ax.xaxis.set_ticks_position('bottom')
         plt.plot(self.strainEng, self.stressEng, label="Material behavior")
         #plt.plot(self.strainEng+0.002+self.strain0, self.ElasticTrend(self.strainEng), label="0.2% offset")
-        plt.plot(strain1, self.ElasticTrend(strain1-self.strain0), '--',
+        plt.plot(strain1, self.ElasticTrend(strain1), '--',
                  label="Young's modulus")
-        plt.plot(strain2, self.ElasticTrend(strain2-0.002-self.strain0), '--',
+        plt.plot(strain2, self.ElasticTrend(strain2-0.002), '--',
                  label="0.2% offset")
         plt.plot(self.strainEng[0], self.stressEng[0], ".",
                  label="Initial state of test")
-        plt.plot(self.strainRP02+self.strain0, self.stressRP02, "o",
+        plt.plot(self.strainRP02, self.stressRP02, "o",
                  label="$R_{P0.2}$")
-        plt.plot(self.strainLinLimit+self.strain0, self.stressLinLimit, "o",
+        plt.plot(self.strainLinLimit, self.stressLinLimit, "o",
                  label="Linear limit")
-        plt.plot(self.strainUltimate+self.strain0, self.stressUltimate, "o",
+        plt.plot(self.strainUltimate, self.stressUltimate, "o",
                  label="Ultimate strength")
         plt.plot(self.strainEng[-1], self.stressEng[-1], "x", label="Break")
         plt.ylabel('Engineering stress $\\sigma_{\\mathrm{Eng}}$ [MPa]')
@@ -456,7 +534,15 @@ def plotMulti(TestList, Show=True, SaveTex=True, SavePng=True, SaveSvg=True,
 
 if __name__ == "__main__":
     print("Test of package")
-    Test1 = uniaxialTensileTest()
-    Test1.loadExample()
-    Test1.changeUnits()
-    Test1.plotForceDisp()
+    Test = uniaxialTensileTest()
+    Test.loadExample()
+    Test.changeUnits()
+    Test.calcStressEng()
+    Test.calcStrainEng()
+    Test.calcElasticModulus(strain0=0.01, strain1=0.02)
+    Test.calcRP02()
+    Test.calcLinearLimit()
+    Test.calcToughnessModulus()
+    Test.calcResilienceModulus()
+    Test.plotForceDisp()
+    Test.plotStressStrainEng()

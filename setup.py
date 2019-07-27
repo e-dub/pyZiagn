@@ -12,7 +12,7 @@ if __name__ == '__main__':
     from distutils.core import setup
     extra_files = package_files('pyZiagn')
     setup(name='pyZiagn',
-          version='0.1.2',
+          version='0.1.3',
           description='Python librarY for material characteriZation based on experImental dAta for lightweiGht desigN',
           author='E. J. Wehrle',
           url='https://github.com/e-dub/pyZiagn',
