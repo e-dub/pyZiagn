@@ -28,8 +28,8 @@ Test4.approxHockettSherby()
 Test4.approxGhosh()
 Test4.plotStressStrainTruePlastic()
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 5))
-plt.plot(Test4.strainTrue, Test4.stressTrue, label="True stress-strain")
-plt.plot(Test4.strainEng, Test4.stressEng, label="Engineering stress-strain")
+plt.plot(Test4.strainTrue, Test4.stressTrue, label="true stress-strain")
+plt.plot(Test4.strainEng, Test4.stressEng, label="engineering stress-strain")
 plt.plot(Test4.strainRambergOsgood, Test4.stressRambergOsgood,
          label="Ramsberg-Osgood")
 plt.plot(Test4.strainHockettSherby+Test4.strainTrueLinLimit,
@@ -37,9 +37,9 @@ plt.plot(Test4.strainHockettSherby+Test4.strainTrueLinLimit,
 plt.plot(Test4.strainGhosh+Test4.strainTrueLinLimit,
          Test4.stressGhosh, label="Ghosh")
 plt.plot(Test4.strainTrueLinLimit, Test4.stressTrueLinLimit, 'o',
-         label='Linear limit in true stress and strain')
+         label='linear limit in true stress and strain')
 plt.plot(Test4.strainRP02, Test4.stressRP02, 'o', label="$R_{P0.2}$")
-plt.xlabel("Strain $\\varepsilon$")
-plt.ylabel("Stress $\\sigma$")
+plt.xlabel("strain $\\varepsilon$")
+plt.ylabel("stress $\\sigma$")
 plt.legend()
 plt.show()

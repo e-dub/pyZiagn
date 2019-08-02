@@ -1,3 +1,5 @@
+#TODO calculate linear limit and RP02 based on true stress and true strain?
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib2tikz import save as tikz_save
@@ -220,8 +222,8 @@ class uniaxialTensileTest(object):
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
         plt.plot(self.disp, self.Force)
-        plt.ylabel('Force $F$ [N]')
-        plt.xlabel('Displacement $u$ [mm]')
+        plt.ylabel('force $F$ [N]')
+        plt.xlabel('displacement $u$ [mm]')
         plt.title(self.Title)
         plt.xlim(xmin=0)
         plt.ylim(ymin=0)
@@ -247,8 +249,8 @@ class uniaxialTensileTest(object):
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
         plt.plot(self.strainEng, self.stressEng)
-        plt.ylabel('Engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
-        plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
+        plt.ylabel('engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
+        plt.xlabel('engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
         plt.title(self.Title)
         plt.xlim(xmin=0)
         plt.ylim(ymin=0)
@@ -274,8 +276,8 @@ class uniaxialTensileTest(object):
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
         plt.plot(self.strainTrue, self.stressTrue)
-        plt.ylabel('True stress $\\sigma_{\\mathrm{true}}$ [MPa]')
-        plt.xlabel('True strain $\\varepsilon_{\\mathrm{true}}$ [-]')
+        plt.ylabel('true stress $\\sigma_{\\mathrm{true}}$ [MPa]')
+        plt.xlabel('true strain $\\varepsilon_{\\mathrm{true}}$ [-]')
         plt.title(self.Title)
         plt.xlim(xmin=0)
         plt.ylim(ymin=0)
@@ -301,11 +303,11 @@ class uniaxialTensileTest(object):
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
         plt.plot(self.strainEng, self.stressEng,
-                 label='Engineering stress–strain')
+                 label='engineering stress–strain')
         plt.plot(self.strainTrue, self.stressTrue,
-                 label='True stress–strain')
-        plt.ylabel('Stress $\\sigma$ [MPa]')
-        plt.xlabel('Strain $\\varepsilon$ [-]')
+                 label='true stress–strain')
+        plt.ylabel('stress $\\sigma$ [MPa]')
+        plt.xlabel('strain $\\varepsilon$ [-]')
         plt.legend(frameon=False)
         plt.title(self.Title)
         plt.xlim(xmin=0)
@@ -333,8 +335,8 @@ class uniaxialTensileTest(object):
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
         plt.plot(self.strainTruePlastic, self.stressTruePlastic)
-        plt.ylabel('True plastic stress $\\sigma_{\\mathrm{true,pl}}$ [MPa]')
-        plt.xlabel('True plastic strain $\\varepsilon_{\\mathrm{true,pl}}$ [-]')
+        plt.ylabel('true plastic stress $\\sigma_{\\mathrm{true,pl}}$ [MPa]')
+        plt.xlabel('true plastic strain $\\varepsilon_{\\mathrm{true,pl}}$ [-]')
         plt.title(self.Title)
         plt.xlim(xmin=0)
         plt.ylim(ymin=0)
@@ -363,11 +365,11 @@ class uniaxialTensileTest(object):
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
         plt.plot(self.dispAll, self.ForceAll,
-                 label='Raw data')
+                 label='raw data')
         plt.plot(self.disp, self.Force,
-                 label='Smoothed and cut')
-        plt.ylabel('Force $F$ [N]')
-        plt.xlabel('Displacement $u$ [mm]')
+                 label='smoothed and cut')
+        plt.ylabel('force $F$ [N]')
+        plt.xlabel('displacement $u$ [mm]')
         plt.legend(frameon=False)
         plt.title(self.Title)
         plt.xlim(xmin=0)
@@ -396,12 +398,12 @@ class uniaxialTensileTest(object):
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
-        plt.plot(self.strainEng, self.stressEng, label="Material behavior")
+        plt.plot(self.strainEng, self.stressEng, label="material behavior")
         #plt.plot(self.strainEng+0.002+self.strain0, self.ElasticTrend(self.strainEng), label="0.2% offset")
         plt.plot(strain1, self.ElasticTrend(strain1), '--',
                  label="Young's modulus")
-        plt.ylabel('Engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
-        plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
+        plt.ylabel('engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
+        plt.xlabel('engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
         plt.title(self.Title)
         plt.xlim(xmin=strainMin, xmax=strainMax)
         #plt.ylim(ymin=0, ymax=max(self.stressEng)*1.05)
@@ -432,7 +434,7 @@ class uniaxialTensileTest(object):
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
-        plt.plot(self.strainEng, self.stressEng, label="Material behavior")
+        plt.plot(self.strainEng, self.stressEng, label="material behavior")
         #plt.plot(self.strainEng+0.002+self.strain0, self.ElasticTrend(self.strainEng), label="0.2% offset")
         plt.plot(strain1, self.ElasticTrend(strain1), '--',
                  label="Young's modulus")
@@ -441,9 +443,9 @@ class uniaxialTensileTest(object):
         plt.plot(self.strainRP02, self.stressRP02, "o",
                  label="$R_{P0.2}$")
         plt.plot(self.strainLinLimit, self.stressLinLimit, "o",
-                 label="Linear limit")
-        plt.ylabel('Engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
-        plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
+                 label="linear limit")
+        plt.ylabel('engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
+        plt.xlabel('engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
         plt.title(self.Title)
         plt.xlim(xmin=strainMin, xmax=strainMax)
         #plt.ylim(ymin=0, ymax=max(self.stressEng)*1.05)
@@ -474,23 +476,23 @@ class uniaxialTensileTest(object):
         ax.spines['top'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
         ax.xaxis.set_ticks_position('bottom')
-        plt.plot(self.strainEng, self.stressEng, label="Material behavior")
+        plt.plot(self.strainEng, self.stressEng, label="material behavior")
         #plt.plot(self.strainEng+0.002+self.strain0, self.ElasticTrend(self.strainEng), label="0.2% offset")
         plt.plot(strain1, self.ElasticTrend(strain1), '--',
                  label="Young's modulus")
         plt.plot(strain2, self.ElasticTrend(strain2-0.002), '--',
                  label="0.2% offset")
         plt.plot(self.strainEng[0], self.stressEng[0], ".",
-                 label="Initial state of test")
+                 label="initial state of test")
         plt.plot(self.strainRP02, self.stressRP02, "o",
                  label="$R_{P0.2}$")
         plt.plot(self.strainLinLimit, self.stressLinLimit, "o",
-                 label="Linear limit")
+                 label="linear limit")
         plt.plot(self.strainUltimate, self.stressUltimate, "o",
-                 label="Ultimate strength")
-        plt.plot(self.strainEng[-1], self.stressEng[-1], "x", label="Break")
-        plt.ylabel('Engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
-        plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
+                 label="ultimate strength")
+        plt.plot(self.strainEng[-1], self.stressEng[-1], "x", label="break")
+        plt.ylabel('engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
+        plt.xlabel('engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
         plt.title(self.Title)
         plt.xlim(xmin=0, xmax=xMax)
         #plt.ylim(ymin=0, ymax=max(self.stressEng)*1.05)
@@ -512,20 +514,20 @@ class uniaxialTensileTest(object):
 
 
 def export2Excel(TestList, FileName="TestSummary.xlsx", PrintData=True):
-    TestData = {"Test": [i.Title for i in TestList],
+    TestData = {"test": [i.Title for i in TestList],
                 "Young's modulus": [i.YoungsModulus for i in TestList],
-                "Initial stress of test": [i.stressEng[0] for i in TestList],
-                "Stress at linear limit": [i.stressLinLimit for i in TestList],
+                "initial stress of test": [i.stressEng[0] for i in TestList],
+                "stress at linear limit": [i.stressLinLimit for i in TestList],
                 "Rp0.2": [i.stressRP02 for i in TestList],
-                "Ultimate stress": [i.stressUltimate for i in TestList],
-                "Breaking stress": [i.stressEng[-1] for i in TestList],
-                "Breaking strain": [i.strainEng[-1] for i in TestList]}
-    TestDataFrame = pd.DataFrame(TestData, columns=["Test", "Young's modulus",
-                                                    "Initial stress of test",
-                                                    "Stress at linear limit",
-                                                    "Rp0.2", "Ultimate stress",
-                                                    "Breaking stress",
-                                                    "Breaking strain"])
+                "ultimate stress": [i.stressUltimate for i in TestList],
+                "breaking stress": [i.stressEng[-1] for i in TestList],
+                "breaking strain": [i.strainEng[-1] for i in TestList]}
+    TestDataFrame = pd.DataFrame(TestData, columns=["test", "Young's modulus",
+                                                    "initial stress of test",
+                                                    "stress at linear limit",
+                                                    "Rp0.2", "ultimate stress",
+                                                    "breaking stress",
+                                                    "breaking strain"])
     TestDataFrame.to_excel(FileName, index=None, header=True)
     if PrintData:
         print(TestDataFrame)
@@ -546,8 +548,8 @@ def plotMulti(TestList, Show=True, SaveTex=True, SavePng=True, SaveSvg=True,
                  marker=markers[int(TestList[i].Title[-1])-1], markevery=500,
                  color='C'+str(int(TestList[i].Title[0])-1),
                  label=TestList[i].Title)
-    plt.ylabel('Engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
-    plt.xlabel('Engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
+    plt.ylabel('engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
+    plt.xlabel('engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
     plt.xlim(xmin=strainMin, xmax=strainMax)
     plt.ylim(ymin=stressMin, ymax=stressMax)
     plt.legend(frameon=False, loc='center left', bbox_to_anchor=(1, 0.5))
