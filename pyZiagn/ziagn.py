@@ -573,6 +573,8 @@ if __name__ == "__main__":
     Test.changeUnits()
     Test.calcStressEng()
     Test.calcStrainEng()
+    Test.calcStressTrue()
+    Test.calcStrainTrue()
     Test.calcElasticModulus(strain0=0.01, strain1=0.02)
     Test.calcRP02()
     Test.calcLinearLimit()
