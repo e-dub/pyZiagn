@@ -543,11 +543,11 @@ def plotMulti(TestList, Show=True, SaveTex=True, SavePng=True, SaveSvg=True,
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
     markers = ["s", "v", "^", "o", "D", "+"]
-    for i in range(len(TestList)):
-        plt.plot(TestList[i].strainEng, TestList[i].stressEng,
-                 marker=markers[int(TestList[i].Title[-1])-1], markevery=500,
-                 color='C'+str(int(TestList[i].Title[0])-1),
-                 label=TestList[i].Title)
+    for i, test in enumerate(TestList):
+        plt.plot(test.strainEng, test.stressEng,
+                 marker=markers[int(test.Title[-1])-1], markevery=500,
+                 color='C'+str(int(test.Title[0])-1),
+                 label=test.Title)
     plt.ylabel('engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
     plt.xlabel('engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
     plt.xlim(xmin=strainMin, xmax=strainMax)
