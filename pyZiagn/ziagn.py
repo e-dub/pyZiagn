@@ -22,6 +22,8 @@ class uniaxialTensileTest:
         self.dispUnit = "mm"
         self.ForceUnit = "kN"
         self.dataSets = ["disp", "Force"]
+        self.strainEngBreak = None
+        self.strainTrueBreak = None
 
     def loadExample(self):
         self.Area0 = 10
@@ -126,8 +128,23 @@ class uniaxialTensileTest:
 
 
 
-    def calcBreak(self, eps=0.01):
-        self.strainEng < eps
+    def calcBreak(self, eps=0.001):
+        from scipy import signal
+        #Peaks = signal.find_peaks(self.stressEng)[0]
+        #Peaks = Peaks[Peaks<np.where(self.stressEng < max(self.stressEng)/10)]
+        #TruePeaks = signal.find_peaks(self.stressEng)[0]
+        #print(Peaks)
+
+        self.stressEng[signal.find_peaks(self.stressEng[self.stressEng > max(self.stressEng)/10])[0]][-1]
+        #BreakIndex = np.where(self.stressEng < eps)[0][0]
+        #TrueBreakIndex = np.where(self.stressTrue < eps)[0][0]
+        #self.strainEngBreak = self.strainEng[BreakIndex-50]
+        #self.strainTrueBreak = self.strainTrue[TrueBreakIndex-50]
+        self.stressEng[signal.find_peaks(self.stressEng[self.stressEng > max(self.stressEng)/10])[0]][-1]
+        #self.strainEngBreak = self.strainEng[Peaks[Peaks<np.where(self.stressEng > max(self.stressEng)/10)[0][0]][-1]]
+        self.strainEngBreak = self.strainEng[signal.find_peaks(self.stressEng[self.stressEng > max(self.stressEng)/10])[0]][-1]
+        #self.strainTrueBreak = self.strainTrue[TruePeaks[TruePeaks<np.where(self.stressTrue < eps)[0][0]][-1]]
+        self.strainTrueBreak = self.strainTrue[signal.find_peaks(self.stressTrue[self.stressTrue > max(self.stressTrue)/10])[0]][-1]
 
 
     def smoothForce(self):
@@ -501,7 +518,10 @@ class uniaxialTensileTest:
                  label="linear limit")
         plt.plot(self.strainUltimate, self.stressUltimate, "o",
                  label="ultimate strength")
-        plt.plot(self.strainEng[-1], self.stressEng[-1], "x", label="break")
+        if self.strainEngBreak is not None:
+            plt.plot(self.strainEngBreak,
+                     self.stressEng[self.strainEng == self.strainEngBreak][-1],
+                     "x", label="break")
         plt.ylabel('engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
         plt.xlabel('engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
         plt.title(self.Title)
