@@ -2,11 +2,11 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib2tikz import save as tikz_save
+from tikzplotlib import save as tikz_save
 import pandas as pd
 
 
-class uniaxialTensileTest(object):
+class uniaxialTensileTest:
     def __init__(self, TestMachine="unibz MTS E0.10", Title="",
                  length0=10, Area0=10):
         self.Area0 = Area0
@@ -19,6 +19,9 @@ class uniaxialTensileTest(object):
         self.strainTrueLinLim = []
         self.strainRP02 = []
         self.strainUltimate = []
+        self.dispUnit = "mm"
+        self.ForceUnit = "kN"
+        self.dataSets = ["disp", "Force"]
 
     def loadExample(self):
         self.Area0 = 10
@@ -52,6 +55,8 @@ class uniaxialTensileTest(object):
             if self.ForceUnit == "kN":
                 self.Force *= 1000
                 self.ForceUnit = "N"
+        if self.TestMachine == "unibz MTS E0.10 upper":
+            self.disp *= -1
 
     def calcStressEng(self):
         self.stressEng = self.Force/self.Area0
@@ -144,11 +149,11 @@ class uniaxialTensileTest(object):
         self.rawData = pd.read_csv(FileName, sep='\t', header=None,
                                    decimal=decimalSeparator,
                                    skiprows=(0, 1, 2, 3, 4, 5, 6, 7))
-        self.disp = self.rawData[0].values
-        self.dispUnit = "mm"
-        self.Force = self.rawData[1].values
-        self.ForceUnit = "kN"
-        self.nSamples = len(self.disp)
+        for i, datai in enumerate(self.dataSets):
+            setattr(self, datai, self.rawData[i].values)
+            #self.disp = self.rawData[0].values
+            #self.Force = self.rawData[1].values
+        self.nSamples = len(self.rawData[0])
 
     def zeroStrain(self):
         stress0 = self.stressEng[0].copy()
