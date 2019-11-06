@@ -109,20 +109,26 @@ class uniaxialTensileTest:
             self.strainRP02 = max(self.strainEng)
 
 
-    def calcLinearLimit(self, eps=0.025, strainRangeMax=0.02):
+    def calcLinearLimit(self, eps=0.01, strainRangeMax=0.02):
         #self.stressLinLimit = self.stressEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]
         #self.strainLinLimit = self.strainEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]-self.strain0
-        self.stressLinLimit = self.stressEng[abs((self.ElasticTrend(self.strainEng) - self.stressEng)/self.stressEng < eps)][-1]
-        self.strainLinLimit = self.strainEng[abs((self.ElasticTrend(self.strainEng) - self.stressEng)/self.stressEng < eps)][-1]
-        if self.stressLinLimit > self.stressRP02:
-            strainRangeCut = self.strainEng[self.strainEng < strainRangeMax]
-            stressRangeCut = self.stressEng[self.strainEng < strainRangeMax]
-            self.stressLinLimit = stressRangeCut[abs((self.ElasticTrend(strainRangeCut[strainRangeCut < 0.04]) - stressRangeCut)/stressRangeCut < eps)][-1]
-            self.strainLinLimit = strainRangeCut[abs((self.ElasticTrend(strainRangeCut[strainRangeCut < 0.04]) - stressRangeCut)/stressRangeCut < eps)][-1]
+        self.stressLinLimit = self.stressEng[(abs(self.ElasticTrend(self.strainEng) - self.stressEng)/max(self.stressEng) < eps)][-1]
+        self.strainLinLimit = self.strainEng[(abs(self.ElasticTrend(self.strainEng) - self.stressEng)/max(self.stressEng) < eps)][-1]
+#        if self.stressLinLimit > self.stressRP02:
+#            strainRangeCut = self.strainEng[self.strainEng < strainRangeMax]
+#            stressRangeCut = self.stressEng[self.strainEng < strainRangeMax]
+#            self.stressLinLimit = stressRangeCut[abs((self.ElasticTrend(strainRangeCut[strainRangeCut < 0.04]) - stressRangeCut)/stressRangeCut < eps)][-1]
+#            self.strainLinLimit = strainRangeCut[abs((self.ElasticTrend(strainRangeCut[strainRangeCut < 0.04]) - stressRangeCut)/stressRangeCut < eps)][-1]
         self.stressTrueLinLimit = self.stressLinLimit*(1+self.strainLinLimit)
         self.strainTrueLinLimit = np.log(1+self.strainLinLimit)
         self.strainTruePlastic = self.strainTrue[self.strainTrue>self.strainTrueLinLimit]-self.strainTrueLinLimit
         self.stressTruePlastic = self.stressTrue[self.strainTrue>self.strainTrueLinLimit]
+
+
+
+    def calcBreak(self, eps=0.01):
+        self.strainEng < eps
+
 
     def smoothForce(self):
         from scipy.signal import savgol_filter
@@ -471,7 +477,7 @@ class uniaxialTensileTest:
             plt.show()
 
 
-    def plotStressStrainEngAll(self, yMax=50, xMax=0.075, Show=True,
+    def plotStressStrainEngAll(self, yMax=None, xMax=None, Show=True,
                               SaveTex=True, SavePng=True, SaveSvg=True,
                               Grid=False, plotSize=(7, 5)):
         strain1 = np.linspace(0.0, max(self.strainEng), self.nSamples)
@@ -499,9 +505,14 @@ class uniaxialTensileTest:
         plt.ylabel('engineering stress $\\sigma_{\\mathrm{eng}}$ [MPa]')
         plt.xlabel('engineering strain $\\varepsilon_{\\mathrm{eng}}$ [-]')
         plt.title(self.Title)
-        plt.xlim(xmin=0, xmax=xMax)
-        #plt.ylim(ymin=0, ymax=max(self.stressEng)*1.05)
-        plt.ylim(ymin=0, ymax=yMax)
+        if xMax is not None:
+            plt.xlim(xmin=0)
+        else:
+            plt.xlim(xmin=0, xmax=xMax)
+        if yMax is None:
+            plt.ylim(ymin=0, ymax=max(self.stressEng)*1.05)
+        else:
+            plt.ylim(ymin=0, ymax=yMax)
         plt.grid(Grid)
         plt.legend(frameon=False, loc='center left', bbox_to_anchor=(1, 0.5))
         plt.tight_layout()
