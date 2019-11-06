@@ -36,4 +36,4 @@ pip install pyZiagn
 * Step 3: find proper region for strain0 and strain1 to calculate Young's modulus (and therefore the yield limit)
 
 ## Getting started
-See iPython notebook under tests. 
+See iPython notebook under examples. 
