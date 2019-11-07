@@ -1,5 +1,4 @@
 #TODO calculate linear limit and RP02 based on true stress and true strain?
-
 import numpy as np
 import matplotlib.pyplot as plt
 from tikzplotlib import save as tikz_save
@@ -110,7 +109,6 @@ class uniaxialTensileTest:
             self.stressRP02 = max(self.stressEng)
             self.strainRP02 = max(self.strainEng)
 
-
     def calcLinearLimit(self, eps=0.01, strainRangeMax=0.02):
         #self.stressLinLimit = self.stressEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]
         #self.strainLinLimit = self.strainEng[abs((self.ElasticTrend(self.strainEng-self.strain0) - self.stressEng)/self.stressEng < eps)][-1]-self.strain0
@@ -123,10 +121,11 @@ class uniaxialTensileTest:
 #            self.strainLinLimit = strainRangeCut[abs((self.ElasticTrend(strainRangeCut[strainRangeCut < 0.04]) - stressRangeCut)/stressRangeCut < eps)][-1]
         self.stressTrueLinLimit = self.stressLinLimit*(1+self.strainLinLimit)
         self.strainTrueLinLimit = np.log(1+self.strainLinLimit)
-        self.strainTruePlastic = self.strainTrue[self.strainTrue>self.strainTrueLinLimit]-self.strainTrueLinLimit
-        self.stressTruePlastic = self.stressTrue[self.strainTrue>self.strainTrueLinLimit]
-
-
+        self.strainTruePlastic = (self.strainTrue[self.strainTrue >
+                                                  self.strainTrueLinLimit] -
+                                  self.strainTrueLinLimit)
+        self.stressTruePlastic = self.stressTrue[self.strainTrue >
+                                                 self.strainTrueLinLimit]
 
     def calcBreak(self, eps=0.001):
         from scipy import signal
@@ -134,18 +133,20 @@ class uniaxialTensileTest:
         #Peaks = Peaks[Peaks<np.where(self.stressEng < max(self.stressEng)/10)]
         #TruePeaks = signal.find_peaks(self.stressEng)[0]
         #print(Peaks)
-
-        self.stressEng[signal.find_peaks(self.stressEng[self.stressEng > max(self.stressEng)/10])[0]][-1]
+        self.stressEng[signal.find_peaks(self.stressEng[self.stressEng >
+                                                        max(self.stressEng) /
+                                         10])[0]][-1]
         #BreakIndex = np.where(self.stressEng < eps)[0][0]
         #TrueBreakIndex = np.where(self.stressTrue < eps)[0][0]
         #self.strainEngBreak = self.strainEng[BreakIndex-50]
         #self.strainTrueBreak = self.strainTrue[TrueBreakIndex-50]
-        self.stressEng[signal.find_peaks(self.stressEng[self.stressEng > max(self.stressEng)/10])[0]][-1]
+        self.stressEng[signal.find_peaks(self.stressEng[self.stressEng >
+                                                        max(self.stressEng) /
+                                         10])[0]][-1]
         #self.strainEngBreak = self.strainEng[Peaks[Peaks<np.where(self.stressEng > max(self.stressEng)/10)[0][0]][-1]]
         self.strainEngBreak = self.strainEng[signal.find_peaks(self.stressEng[self.stressEng > max(self.stressEng)/10])[0]][-1]
         #self.strainTrueBreak = self.strainTrue[TruePeaks[TruePeaks<np.where(self.stressTrue < eps)[0][0]][-1]]
         self.strainTrueBreak = self.strainTrue[signal.find_peaks(self.stressTrue[self.stressTrue > max(self.stressTrue)/10])[0]][-1]
-
 
     def smoothForce(self):
         from scipy.signal import savgol_filter
@@ -208,38 +209,55 @@ class uniaxialTensileTest:
 
         def fRambergOsgood(stress, nRambergOsgood):
             return(stress/self.YoungsModulus +
-                   self.alphaRambergOsgood*self.stressRP02/self.YoungsModulus*(stress/self.stressRP02)**nRambergOsgood)
-        stressEngCut = self.stressEng[self.stressEng<self.stressUltimate]
-        strainEngCut = self.strainEng[self.stressEng<self.stressUltimate]
+                   self.alphaRambergOsgood * self.stressRP02 /
+                   self.YoungsModulus*(stress/self.stressRP02)**nRambergOsgood)
+        stressEngCut = self.stressEng[self.stressEng < self.stressUltimate]
+        strainEngCut = self.strainEng[self.stressEng < self.stressUltimate]
         self.nRambergOsgood, pcov = curve_fit(fRambergOsgood, stressEngCut,
                                               strainEngCut, p0=5)
-        self.strainRambergOsgood = (self.stressRambergOsgood/self.YoungsModulus +
-                                    self.alphaRambergOsgood*self.stressRP02/self.YoungsModulus*(self.stressRambergOsgood/self.stressRP02)**self.nRambergOsgood)
+        self.strainRambergOsgood = (self.stressRambergOsgood /
+                                    self.YoungsModulus +
+                                    self.alphaRambergOsgood *
+                                    self.stressRP02/self.YoungsModulus *
+                                    (self.stressRambergOsgood /
+                                     self.stressRP02)**self.nRambergOsgood)
 
     def approxHockettSherby(self):
         from scipy.optimize import curve_fit
         #self.strainHockettSherby = strain
         self.stressPlastic = max(self.stressTrue)-self.stressTrueLinLimit
+
         def fHockettSherby(strain, cHockettSherby, nHockettSherby):
-            return(self.stressTrueLinLimit + self.stressPlastic -self.stressPlastic*np.exp(-cHockettSherby*strain**nHockettSherby))
-        stressPlastic = self.stressTrue[self.strainTrue>self.strainTrueLinLimit]
-        strainPlastic = self.strainTrue[self.strainTrue>self.strainTrueLinLimit]-self.strainTrueLinLimit
+            return(self.stressTrueLinLimit + self.stressPlastic -
+                   self.stressPlastic *
+                   np.exp(-cHockettSherby*strain**nHockettSherby))
+
+        stressPlastic = self.stressTrue[self.strainTrue >
+                                        self.strainTrueLinLimit]
+        strainPlastic = (self.strainTrue[self.strainTrue >
+                                         self.strainTrueLinLimit] -
+                         self.strainTrueLinLimit)
         [self.cHockettSherby, self.nHockettSherby], pcov = curve_fit(fHockettSherby, strainPlastic, stressPlastic, maxfev=1000000) #, p0=[10, 0.75])
         self.strainHockettSherby = strainPlastic
-        self.stressHockettSherby = (self.stressTrueLinLimit + self.stressPlastic -
-                                   self.stressPlastic*np.exp(-self.cHockettSherby*self.strainHockettSherby**self.nHockettSherby))
+        self.stressHockettSherby = (self.stressTrueLinLimit +
+                                    self.stressPlastic -
+                                    self.stressPlastic*np.exp(-self.cHockettSherby*self.strainHockettSherby**self.nHockettSherby))
 
     def approxGhosh(self):
         from scipy.optimize import curve_fit
         #self.strainHockettSherby = strain
         self.stressPlastic = max(self.stressTrue)-self.stressTrueLinLimit
+
         def fGhosh(strain, aGhosh, bGhosh, cGhosh, nGhosh):
-             return(aGhosh*(bGhosh+strain)**nGhosh-cGhosh)
-        stressPlastic = self.stressTrue[self.strainTrue>self.strainTrueLinLimit]
-        strainPlastic = self.strainTrue[self.strainTrue>self.strainTrueLinLimit]-self.strainTrueLinLimit
+            return(aGhosh*(bGhosh+strain)**nGhosh-cGhosh)
+        stressPlastic = self.stressTrue[self.strainTrue >
+                                        self.strainTrueLinLimit]
+        strainPlastic = (self.strainTrue[self.strainTrue >
+                                         self.strainTrueLinLimit] -
+                         self.strainTrueLinLimit)
         [self.aGhosh, self.bGhosh, self.cGhosh, self.nGhosh], pcov = curve_fit(fGhosh, strainPlastic, stressPlastic, maxfev=1000000) #, p0=[10, 0.75])
         self.strainGhosh = strainPlastic
-        self.stressGhosh = self.aGhosh*(self.bGhosh+self.strainGhosh)**self.nGhosh-self.cGhosh
+        self.stressGhosh = self.aGhosh * (self.bGhosh + self.strainGhosh)**self.nGhosh - self.cGhosh
 
     def plotForceDisp(self, Show=True, SaveTex=True, SavePng=True,
                       SaveSvg=True, Grid=False, plotSize=(7, 5)):
@@ -493,10 +511,9 @@ class uniaxialTensileTest:
         if Show:
             plt.show()
 
-
     def plotStressStrainEngAll(self, yMax=None, xMax=None, Show=True,
-                              SaveTex=True, SavePng=True, SaveSvg=True,
-                              Grid=False, plotSize=(7, 5)):
+                               SaveTex=True, SavePng=True, SaveSvg=True,
+                               Grid=False, plotSize=(7, 5)):
         strain1 = np.linspace(0.0, max(self.strainEng), self.nSamples)
         strain2 = np.linspace(0.002, max(self.strainEng), self.nSamples)
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=plotSize)
