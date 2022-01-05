@@ -1,9 +1,10 @@
 import pyZiagn
+
 Test2 = pyZiagn.uniaxialTensileTest(length0=30, Area0=30)
-Test2.Title = "Test2"
-Test2.importTestData("data/Example2.txt")
+Test2.Title = 'Test2'
+Test2.importTestData('data/Example2.txt')
 Test2.changeUnits()
-Test2.cutData("disp", 1.97)
+Test2.cutData('disp', 1.97)
 Test2.smoothForce()
 Test2.plotForceDisp()
 Test2.calcStressEng()
