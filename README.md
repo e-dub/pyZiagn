@@ -1,5 +1,11 @@
 <p align=center><img height="50%" width="50%" src="figures/pyZiagn.png"></p>
 
+[![PyPi Version](https://img.shields.io/pypi/v/pyZiagn.svg?style=flat-square)](https://pypi.org/project/pyZiagn)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/pyZiagn.svg?style=flat-square)](https://pypi.org/project/Ziagn/)
+[![GitHub stars](https://img.shields.io/github/stars/e-dub/Ziagn.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/e-dub/Ziagn)
+[![PyPi downloads](https://img.shields.io/pypi/dm/Ziagn.svg?style=flat-square)](https://pypistats.org/packages/Ziagn)
+[![Code style: blue](https://img.shields.io/badge/code%20style-blue-blue.svg)](https://blue.readthedocs.io/)
+
 # pyZiagn
 
 **Python librarY for material characteriZation based on experImental dAta for lightweiGht desigN**
@@ -21,7 +27,7 @@ pip install pandas
 
 ### Install
 ```
-python setup.py install
+python -m pip install -U .
 ```
 
 ### PIP
